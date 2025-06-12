@@ -5,5 +5,6 @@ terraform {
     region         = "us-east-1"
     encrypt        = true
     dynamodb_table = "rs-school.andrey.tf_state_lock"
+    profile        = "rs-school"
   }
 }
