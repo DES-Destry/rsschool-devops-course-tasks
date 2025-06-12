@@ -21,8 +21,8 @@ jobs:
           id: aws-credentials
           uses: aws-actions/configure-aws-credentials@v4.1.0
           with:
-            audience: ${{ env.AWS_ROLE_AUDIENCE }}
-            aws-region: ${{ env.AWS_REGION }}
+            audience: ${{ vars.AWS_ROLE_AUDIENCE }}
+            aws-region: ${{ vars.AWS_REGION }}
             role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
         - name: Terraform fmt
