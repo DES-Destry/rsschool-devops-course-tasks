@@ -25,6 +25,12 @@ variable "github_repo" {
   description = "GitHub repository name"
 }
 
+variable "github_actions_token_host" {
+  type        = string
+  default     = "token.actions.githubusercontent.com"
+  description = "GitHub URL for OIDC token actions"
+}
+
 variable "github_actions_required_managed_policies" {
   type        = map(string)
   description = "List of required AWS managed policies for GitHub Actions"
