@@ -4,12 +4,6 @@ variable "aws_region" {
   description = "AWS region to deploy resources in"
 }
 
-variable "aws_profile" {
-  type        = string
-  default     = "rs-school"
-  description = "AWS profile to use for authentication described in ~/.aws/credentials"
-}
-
 variable "github_actions_role_name" {
   type        = string
   description = "Name of the IAM role for GitHub Actions"

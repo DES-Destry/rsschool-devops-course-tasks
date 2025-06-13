@@ -1,5 +1,4 @@
 aws_region                = "us-east-1"
-aws_profile               = "rs-school"
 github_actions_role_name  = "GithubActionsRole"
 github_org                = "DES-Destry"
 github_repo               = "rsschool-devops-course-tasks"
