@@ -1,3 +1,5 @@
+![Workflow](https://github.com/DES-Destry/rsschool-devops-course-tasks/actions/workflows/apply-tf.yml/badge.svg)
+
 ## How to start
 
 1. Install the required CLIs: AWS CLI and Terraform CLI.
