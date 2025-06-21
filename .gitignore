@@ -1,2 +1,4 @@
 .terraform
+bootstrap/terraform.tfstate
+bootstrap/terraform.tfstate.backup
 .idea
