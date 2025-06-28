@@ -32,6 +32,7 @@ jobs:
           terraform fmt -check -recursive
 
   terraform-plan:
+    needs: terraform-check
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
     steps:
@@ -59,6 +60,7 @@ jobs:
         run: terraform plan -no-color -input=false
 
   terraform-apply:
+    needs: terraform-plan
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
     steps:
