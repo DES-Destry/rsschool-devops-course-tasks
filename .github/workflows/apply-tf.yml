@@ -18,18 +18,11 @@ jobs:
     name: 'Terraform Format Check'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Format Check
-        run: |
-          cd terraform
-          terraform fmt -check -recursive
+        run: terraform fmt -check -recursive
 
   terraform-plan:
     needs: terraform-check
