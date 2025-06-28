@@ -4,28 +4,39 @@ variable "aws_region" {
   description = "AWS region to deploy resources in"
 }
 
-variable "github_actions_role_name" {
-  type        = string
-  description = "Name of the IAM role for GitHub Actions"
+variable "availability_zones" {
+  type        = list(string)
+  description = "List of availability zones in the AWS region"
 }
 
-variable "github_org" {
+variable "main_vpc_cidr" {
   type        = string
-  description = "GitHub organization name"
+  description = "CIDR block for the main VPC"
 }
 
-variable "github_repo" {
-  type        = string
-  description = "GitHub repository name"
+variable "main_public_subnet_cidrs" {
+  type        = list(string)
+  description = "CIDR blocks for the Public Subnets of main VPC"
 }
 
-variable "github_actions_token_host" {
-  type        = string
-  default     = "token.actions.githubusercontent.com"
-  description = "GitHub URL for OIDC token actions"
+variable "main_private_subnet_cidrs" {
+  type        = list(string)
+  description = "CIDR blocks for the Private Subnets of main VPC"
 }
 
-variable "github_actions_required_managed_policies" {
-  type        = map(string)
-  description = "List of required AWS managed policies for GitHub Actions"
+variable "instance_type" {
+  type        = string
+  description = "Instance type for the EC2 instances"
+  default     = "t2.micro" # Free tier eligible
+}
+
+variable "enable_nat" {
+  type        = bool
+  description = "If true, deploy a NAT instance in the public subnet"
+}
+
+variable "nat_instance_type" {
+  type        = string
+  description = "Instance type for the NAT instance"
+  default     = "t2.micro" # Free tier eligible
 }
