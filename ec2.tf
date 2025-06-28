@@ -1,72 +1,56 @@
+data "aws_ami" "amazon_linux_2023" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-x86_64"] # Amazon Linux 2023
+  }
+}
+
 resource "aws_eip" "bastion_ip" {
-  instance = aws_instance.bastion_instance.id
-  associate_with_private_ip = var.bastion_ip
-
-  depends_on = [aws_internet_gateway.main_igw]
+  instance = aws_instance.bastion.id
+  domain   = "vpc"
 
   tags = {
-    Name = "Bastion Instance EIP"
+    Name = "bastion-eip"
   }
 }
 
-resource "aws_eip" "public2_ip" {
-  instance = aws_instance.public2_instance.id
-  associate_with_private_ip = var.public2_instance_ip
+resource "aws_key_pair" "bastion" {
+  key_name   = "bastion-key"
+  public_key = file("./bastion-key.pub")
+}
 
-  depends_on = [aws_internet_gateway.main_igw]
+resource "aws_instance" "bastion" {
+  ami           = data.aws_ami.amazon_linux_2023.id
+  instance_type = var.instance_type
+  subnet_id     = aws_subnet.public[0].id
+  key_name      = aws_key_pair.bastion.key_name
+
+  vpc_security_group_ids = [aws_security_group.bastion.id]
 
   tags = {
-    Name = "Public 2 Instance EIP"
+    Name = "bastion"
   }
 }
 
-resource "aws_instance" "bastion_instance" {
-  ami                         = var.amis.us-east-1
-  instance_type               = var.instance_type
-  subnet_id                   = aws_subnet.main_public1_subnet.id
-  key_name                    = "bastion-instance-key"
-
-  private_ip = var.bastion_ip
-
-  vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
+resource "aws_instance" "private_1" {
+  ami           = data.aws_ami.amazon_linux_2023.id
+  instance_type = var.instance_type
+  subnet_id     = aws_subnet.private[0].id
 
   tags = {
-    Name = "Bastion"
+    Name = "private-1"
   }
 }
 
-resource "aws_instance" "private1_instance" {
-  ami                         = var.amis.us-east-1
-  instance_type               = var.instance_type
-  subnet_id                   = aws_subnet.main_private1_subnet.id
-
-  private_ip = var.private1_instance_ip
+resource "aws_instance" "private_2" {
+  ami           = data.aws_ami.amazon_linux_2023.id
+  instance_type = var.instance_type
+  subnet_id     = aws_subnet.private[1].id
 
   tags = {
-    Name = "Private 1 Instance"
-  }
-}
-
-resource "aws_instance" "public2_instance" {
-  ami                         = var.amis.us-east-1
-  instance_type               = var.instance_type
-  subnet_id                   = aws_subnet.main_public2_subnet.id
-
-  private_ip = var.public2_instance_ip
-
-  tags = {
-    Name = "Public 2 Instance"
-  }
-}
-
-resource "aws_instance" "private2_instance" {
-  ami                         = var.amis.us-east-1
-  instance_type               = var.instance_type
-  subnet_id                   = aws_subnet.main_private2_subnet.id
-
-  private_ip = var.private1_instance_ip
-
-  tags = {
-    Name = "Private 2 Instance"
+    Name = "private-1"
   }
 }

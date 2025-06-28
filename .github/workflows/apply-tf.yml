@@ -1,4 +1,5 @@
-name: apply-tf.yml
+name: 'Update Terraform Infrastructure'
+
 on:
   push:
     branches:
@@ -7,41 +8,75 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
 jobs:
-    apply:
-      permissions:
-        id-token: write
-        contents: read
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - uses: hashicorp/setup-terraform@v3
+  terraform-check:
+    name: 'Terraform Format Check'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Configure AWS Credentials
-          id: aws-credentials
-          uses: aws-actions/configure-aws-credentials@v4.1.0
-          with:
-            audience: ${{ vars.AWS_ROLE_AUDIENCE }}
-            aws-region: ${{ vars.AWS_REGION }}
-            role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
 
-        - name: Terraform fmt
-          id: fmt
-          run: terraform fmt -check
-          continue-on-error: true
+      - name: Terraform Format Check
+        run: |
+          cd terraform
+          terraform fmt -check -recursive
 
-        - name: Terraform Init
-          id: init
-          run: terraform init -input=false
+  terraform-plan:
+    name: 'Terraform Plan'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
 
-        - name: Terraform Validate
-          id: validate
-          run: terraform validate -no-color
+      - name: Configure AWS Credentials
+        id: aws-credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          audience: ${{ vars.AWS_ROLE_AUDIENCE }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
-        - name: Terraform Plan
-          id: plan
-          run: terraform plan -no-color -input=false
+      - name: Terraform Init
+        id: init
+        run: terraform init -input=false
 
-        - name: Terraform Apply
-          id: apply
-          run: terraform apply -auto-approve -no-color -input=false
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false
+
+  terraform-apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS Credentials
+        id: aws-credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          audience: ${{ vars.AWS_ROLE_AUDIENCE }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -input=false
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve -no-color -input=false

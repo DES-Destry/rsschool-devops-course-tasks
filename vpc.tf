@@ -1,62 +1,39 @@
-resource "aws_vpc" "main_vpc" {
+resource "aws_vpc" "main" {
   cidr_block           = var.main_vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
+
   tags = {
-    Name = "main_vpc"
+    Name = "main"
   }
 }
 
-resource "aws_subnet" "main_public1_subnet" {
-  vpc_id                  = aws_vpc.main_vpc.id
-  cidr_block              = var.main_public1_subnet_cidr
-  availability_zone       = var.availability_zones[0]
+resource "aws_subnet" "public" {
+  count                   = length(var.main_public_subnet_cidrs)
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.main_public_subnet_cidrs[count.index]
+  availability_zone       = var.availability_zones[count.index % length(var.availability_zones)]
   map_public_ip_on_launch = true
-  depends_on              = [aws_internet_gateway.main_igw]
+
   tags = {
-    Name = "main_public1_subnet"
+    Name = "public-subnet-${count.index + 1}"
   }
 }
 
-resource "aws_subnet" "main_private1_subnet" {
-  vpc_id                  = aws_vpc.main_vpc.id
-  cidr_block              = var.main_private1_subnet_cidr
-  availability_zone       = var.availability_zones[0]
-  map_public_ip_on_launch = true
+resource "aws_subnet" "private" {
+  count                   = length(var.main_private_subnet_cidrs)
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.main_private_subnet_cidrs[count.index]
+  availability_zone       = var.availability_zones[count.index % length(var.availability_zones)]
+  map_public_ip_on_launch = false
+
   tags = {
-    Name = "main_private1_subnet"
+    Name = "private-subnet-${count.index + 1}"
   }
 }
 
-resource "aws_subnet" "main_public2_subnet" {
-  vpc_id                  = aws_vpc.main_vpc.id
-  cidr_block              = var.main_public2_subnet_cidr
-  availability_zone       = var.availability_zones[1]
-  map_public_ip_on_launch = true
-  depends_on              = [aws_internet_gateway.main_igw]
-  tags = {
-    Name = "main_public2_subnet"
-  }
-}
-
-resource "aws_subnet" "main_private2_subnet" {
-  vpc_id            = aws_vpc.main_vpc.id
-  cidr_block        = var.main_private2_subnet_cidr
-  availability_zone = var.availability_zones[1]
-  tags = {
-    Name = "main_private2_subnet"
-  }
-}
-
-resource "aws_internet_gateway" "main_igw" {
-  vpc_id = aws_vpc.main_vpc.id
-  tags = {
-    Name = "main_igw"
-  }
-}
-
-resource "aws_network_acl" "main_nacl_allow_all" {
-  vpc_id = aws_vpc.main_vpc.id
+resource "aws_network_acl" "nacl_allow_all" {
+  vpc_id = aws_vpc.main.id
 
   egress {
     protocol   = "-1"
@@ -77,6 +54,6 @@ resource "aws_network_acl" "main_nacl_allow_all" {
   }
 
   tags = {
-    Name = "main_nacl"
+    Name = "nacl-allow-all"
   }
 }
